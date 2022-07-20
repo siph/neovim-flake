@@ -46,6 +46,12 @@ in {
         "<silent><leader>b7" = "<Cmd>BufferLineGoToBuffer 7<CR>";
         "<silent><leader>b8" = "<Cmd>BufferLineGoToBuffer 8<CR>";
         "<silent><leader>b9" = "<Cmd>BufferLineGoToBuffer 9<CR>";
+        "<C-h>" = "<C-w>h";
+        "<C-j>" = "<C-w>j";
+        "<C-k>" = "<C-w>k";
+        "<C-l>" = "<C-w>l";
+        "<leader>w" = "<cmd>w<CR>";
+        "<leader>q" = "<cmd>qa<CR>";
       };
 
       vim.luaConfigRC = ''
