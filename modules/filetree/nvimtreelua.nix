@@ -100,7 +100,7 @@ in {
     };
 
     trailingSlash = mkOption {
-      default = true;
+      default = false;
       description = "Add a trailing slash to all folders";
       type = types.bool;
     };
