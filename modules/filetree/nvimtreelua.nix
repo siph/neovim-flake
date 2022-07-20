@@ -22,7 +22,7 @@ in {
     };
 
     treeWidth = mkOption {
-      default = 25;
+      default = 30;
       description = "Width of the tree in charecters";
       type = types.int;
     };

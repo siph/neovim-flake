@@ -29,8 +29,8 @@ in {
       ];
 
       vim.nnoremap = {
-        "<S-h>" = ":BufferLineCycleNext<CR>";
-        "<S-l>" = ":BufferLineCyclePrev<CR>";
+        "<S-l>" = ":BufferLineCycleNext<CR>";
+        "<S-h>" = ":BufferLineCyclePrev<CR>";
         "<C-h>" = "<C-w>h";
         "<C-j>" = "<C-w>j";
         "<C-k>" = "<C-w>k";
