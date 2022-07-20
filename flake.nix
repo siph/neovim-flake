@@ -377,12 +377,12 @@
           };
           vim.statusline.lualine = {
             enable = true;
-            theme = "onedark";
+            theme = "tokyonight";
           };
           vim.theme = {
             enable = true;
-            name = "onedark";
-            style = "darker";
+            name = "tokyonight";
+            style = "storm";
           };
           vim.autopairs.enable = true;
           vim.autocomplete = {
