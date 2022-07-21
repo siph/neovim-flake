@@ -3,11 +3,6 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
 
-    jdpkgs = {
-      url = "github:jordanisaacs/jdpkgs";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     neovim-overlay = {
       url = "github:nix-community/neovim-nightly-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -215,21 +210,10 @@
       url = "github:nvim-lua/plenary.nvim";
       flake = false;
     };
-
-    hare-vim = {
-      url = "git+https://git.sr.ht/~sircmpwn/hare.vim";
-      flake = false;
-    };
-
-    tree-sitter-hare = {
-      url = "git+https://git.sr.ht/~ecmma/tree-sitter-hare";
-      flake = false;
-    };
   };
 
   outputs = {
     nixpkgs,
-    jdpkgs,
     flake-utils,
     ...
   } @ inputs: let
@@ -274,7 +258,6 @@
       "telescope"
       "rust-tools"
       "gruvbox"
-      "hare-vim"
     ];
 
     pluginOverlay = lib.buildPluginOverlay;
@@ -286,7 +269,6 @@
         pluginOverlay
         (final: prev: {
           rnix-lsp = inputs.rnix-lsp.defaultPackage.${system};
-          tree-sitter-hare = jdpkgs.packages.${system}.tree-sitter-hare;
           rust-analyzer-unwrapped = prev.rust-analyzer-unwrapped.overrideAttrs (old: rec {
             pname = "rust-analyzer-unwrapped";
             version = "2022-04-25";
@@ -358,7 +340,6 @@
             sql = true;
             ts = true;
             go = true;
-            hare = true;
           };
           vim.visuals = {
             enable = true;
