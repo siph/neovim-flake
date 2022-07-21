@@ -31,12 +31,6 @@ in {
       vim.nnoremap = {
         "<S-l>" = ":BufferLineCycleNext<CR>";
         "<S-h>" = ":BufferLineCyclePrev<CR>";
-        "<C-h>" = "<C-w>h";
-        "<C-j>" = "<C-w>j";
-        "<C-k>" = "<C-w>k";
-        "<C-l>" = "<C-w>l";
-        "<leader>w" = "<cmd>w<CR>";
-        "<leader>q" = "<cmd>qa<CR>";
       };
 
       vim.luaConfigRC = ''

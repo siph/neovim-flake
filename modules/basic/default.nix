@@ -113,6 +113,21 @@ in {
       type = types.int;
       description = "Determine how many context lines show above/below cursor";
     };
+
+    betterWindowNavigation = mkOption {
+      type = types.bool;
+      description = "Shorten window-naviation keybinds to Ctrl + direction";
+    };
+
+    quickWrite = mkOption {
+      type = types.bool;
+      description = "Save with leader + w";
+    };
+
+    quickClose = mkOption {
+      type = types.bool;
+      description = "Quit with leader + q";
+    };
   };
 
   config = (
@@ -143,6 +158,9 @@ in {
       vim.splitBelow = mkDefault true;
       vim.splitRight = mkDefault true;
       vim.scrollOff = mkDefault 10;
+      vim.betterWindowNavigation = mkDefault true;
+      vim.quickWrite = mkDefault true;
+      vim.quickClose = mkDefault true;
 
       vim.startPlugins = with pkgs.neovimPlugins; [plenary-nvim];
 
@@ -166,10 +184,33 @@ in {
         }
         else {};
 
-      vim.nnoremap =
-        if (cfg.mapLeaderSpace)
-        then {"<space>" = "<nop>";}
-        else {};
+      vim.nnoremap = let
+        leader =
+          if (cfg.mapLeaderSpace)
+          then {"<space>" = "<nop>";}
+          else {};
+        navigation =
+          if (cfg.betterWindowNavigation)
+          then {
+            "<C-h>" = "<C-w>h";
+            "<C-j>" = "<C-w>j";
+            "<C-k>" = "<C-w>k";
+            "<C-l>" = "<C-w>l";
+          }
+          else {};
+        quickWrite =
+          if (cfg.quickWrite)
+          then {
+            "<leader>w" = "<cmd>w<CR>";
+          }
+          else {};
+        quickClose =
+          if (cfg.quickClose)
+          then {
+            "<leader>q" = "<cmd>qa<CR>";
+          }
+          else {};
+      in (leader // navigation // quickWrite // quickClose);
 
       vim.configRC = ''
         " Settings that are set for everything
