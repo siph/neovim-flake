@@ -58,7 +58,7 @@ in {
         ++ (
           if config.vim.theme.name == "tokyonight"
           then ["tokyonight"]
-          else ["onedark"]
+          else ["gruvbox"]
         )
       );
       description = "Theme for lualine";

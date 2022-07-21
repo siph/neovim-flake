@@ -187,6 +187,22 @@
         "type": "github"
       }
     },
+    "gruvbox": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1593780126,
+        "narHash": "sha256-H8WkOC9NMPXFznv2+dwOj3syNd2sLqszmoMqST/W5hQ=",
+        "owner": "morhetz",
+        "repo": "gruvbox",
+        "rev": "bf2885a95efdad7bd5e4794dd0213917770d79b7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "morhetz",
+        "repo": "gruvbox",
+        "type": "github"
+      }
+    },
     "hare-vim": {
       "flake": false,
       "locked": {
@@ -660,22 +676,6 @@
         "type": "github"
       }
     },
-    "onedark": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1650883368,
-        "narHash": "sha256-xJ3P39TBQz6NSByEwEj4CYnkU+tl+/4vOJd5domzvQU=",
-        "owner": "navarasu",
-        "repo": "onedark.nvim",
-        "rev": "08cde8acf181b3278dafb9c8284726104a11cc0f",
-        "type": "github"
-      },
-      "original": {
-        "owner": "navarasu",
-        "repo": "onedark.nvim",
-        "type": "github"
-      }
-    },
     "plenary-nvim": {
       "flake": false,
       "locked": {
@@ -740,6 +740,7 @@
         "flake-utils": "flake-utils",
         "gitsigns-nvim": "gitsigns-nvim",
         "glow-nvim": "glow-nvim",
+        "gruvbox": "gruvbox",
         "hare-vim": "hare-vim",
         "indent-blankline": "indent-blankline",
         "jdpkgs": "jdpkgs",
@@ -765,7 +766,6 @@
         "nvim-treesitter-context": "nvim-treesitter-context",
         "nvim-ts-autotag": "nvim-ts-autotag",
         "nvim-web-devicons": "nvim-web-devicons",
-        "onedark": "onedark",
         "plenary-nvim": "plenary-nvim",
         "registers": "registers",
         "rnix-lsp": "rnix-lsp",

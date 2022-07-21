@@ -15,15 +15,15 @@ in {
     };
 
     name = mkOption {
-      type = types.enum ["onedark" "tokyonight"];
-      description = ''Name of theme to use: "onedark" "tokyonight"'';
+      type = types.enum ["gruvbox" "tokyonight"];
+      description = ''Name of theme to use: "gruvbox" "tokyonight"'';
     };
 
     style = mkOption {
       type = with types; (
         if (cfg.name == "tokyonight")
         then (enum ["day" "night" "storm"])
-        else (enum ["dark" "darker" "cool" "deep" "warm" "warmer"])
+        else (enum ["soft" "medium" "hard"])
       );
       description = ''Theme style: "storm", darker variant "night", and "day"'';
     };
@@ -47,14 +47,12 @@ in {
         vim.startPlugins = with pkgs.neovimPlugins;
           if (cfg.name == "tokyonight")
           then [tokyonight]
-          else [onedark];
+          else [gruvbox];
 
-        vim.luaConfigRC = mkIf (cfg.name == "onedark") ''
-          -- OneDark theme
-          require('onedark').setup {
-            style = "${cfg.style}"
-          }
-          require('onedark').load()
+        vim.luaConfigRC = mkIf (cfg.name == "gruvbox") ''
+          -- Gruvbox theme
+          vim.g.gruvbox_contrast_dark = '${cfg.style}'
+          vim.cmd('colorscheme ${cfg.name}')
         '';
       }
     );

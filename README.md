@@ -180,7 +180,7 @@ A list of all plugins that can be enabled
 
 ### Themes
 
-- [onedark](https://github.com/navarasu/onedark.nvim) a dark colorscheme with multiple options
+- [gruvbox](https://github.com/morhetz/gruvbox) a retro colorscheme with multiple options
 - [tokyonight-nvim](https://github.com/folke/tokyonight.nvim) a neovim theme with multiple color options
 
 ### Dependencies

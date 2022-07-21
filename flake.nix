@@ -169,8 +169,8 @@
       flake = false;
     };
 
-    onedark = {
-      url = "github:navarasu/onedark.nvim";
+    gruvbox = {
+      url = "github:morhetz/gruvbox";
       flake = false;
     };
 
@@ -273,7 +273,7 @@
       "glow-nvim"
       "telescope"
       "rust-tools"
-      "onedark"
+      "gruvbox"
       "hare-vim"
     ];
 
@@ -377,12 +377,12 @@
           };
           vim.statusline.lualine = {
             enable = true;
-            theme = "tokyonight";
+            theme = "gruvbox";
           };
           vim.theme = {
             enable = true;
-            name = "tokyonight";
-            style = "storm";
+            name = "gruvbox";
+            style = "hard";
           };
           vim.autopairs.enable = true;
           vim.autocomplete = {
