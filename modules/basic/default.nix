@@ -128,6 +128,11 @@ in {
       type = types.bool;
       description = "Quit with leader + q";
     };
+
+    highlightOnYank = mkOption {
+      type = types.bool;
+      description = "Briefly highlight yanked text";
+    };
   };
 
   config = (
@@ -161,6 +166,7 @@ in {
       vim.betterWindowNavigation = mkDefault true;
       vim.quickWrite = mkDefault true;
       vim.quickClose = mkDefault true;
+      vim.highlightOnYank = mkDefault true;
 
       vim.startPlugins = with pkgs.neovimPlugins; [plenary-nvim];
 
@@ -283,6 +289,13 @@ in {
         ${writeIf cfg.colourTerm ''
           set termguicolors
           set t_Co=256
+        ''}
+        ${writeIf cfg.highlightOnYank ''
+          " Highlight on yank
+          augroup highlight_yank
+              autocmd!
+              au TextYankPost * silent! lua vim.highlight.on_yank{higroup="Search", timeout=200}
+          augroup END
         ''}
       '';
     }
