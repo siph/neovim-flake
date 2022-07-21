@@ -411,6 +411,7 @@
             enable = true;
             gitsigns.enable = true;
           };
+          vim.scrollOff = 15;
         };
       };
     };

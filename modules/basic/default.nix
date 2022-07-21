@@ -108,6 +108,11 @@ in {
       type = types.bool;
       description = "New splits will open to the right";
     };
+
+    scrollOff = mkOption {
+      type = types.int;
+      description = "Determine how many context lines show above/below cursor";
+    };
   };
 
   config = (
@@ -137,6 +142,7 @@ in {
       vim.mapTimeout = mkDefault 500;
       vim.splitBelow = mkDefault true;
       vim.splitRight = mkDefault true;
+      vim.scrollOff = mkDefault 10;
 
       vim.startPlugins = with pkgs.neovimPlugins; [plenary-nvim];
 
@@ -178,6 +184,7 @@ in {
         set shortmess+=c
         set tm=${toString cfg.mapTimeout}
         set hidden
+        set scrolloff=${toString cfg.scrollOff}
         ${writeIf cfg.splitBelow ''
           set splitbelow
         ''}
