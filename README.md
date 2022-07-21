@@ -2,7 +2,7 @@
 
 Nix flake for neovim with configuration options
 
-Originally based on Wil Taylor's amazing [neovim-flake](https://github.com/wiltaylor/neovim-flake)
+Forked from jordanisaacs' amazing [neovim-flake](https://github.com/jordanisaacs/neovim-flake)
 
 ## Installation
 
@@ -15,7 +15,7 @@ nix run .#
 If you want to live life on the edge you can point to this repository directly with:
 
 ```
-nix run github:jordanisaacs/neovim-flake.#
+nix run gitlab:xsiph/neovim-flake.#
 ```
 
 ## Options
