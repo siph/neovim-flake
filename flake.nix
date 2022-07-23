@@ -321,6 +321,7 @@
             sql = true;
             ts = true;
             go = true;
+            java = true;
           };
           vim.visuals = {
             enable = true;

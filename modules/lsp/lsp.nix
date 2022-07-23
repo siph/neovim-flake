@@ -31,6 +31,7 @@ in {
     sql = mkEnableOption "SQL Language LSP";
     go = mkEnableOption "Go language LSP";
     ts = mkEnableOption "TS language LSP";
+    java = mkEnableOption "Java language LSP";
   };
 
   config = mkIf cfg.enable (
@@ -323,6 +324,15 @@ in {
               attach_keymaps(client, bufnr)
             end,
             cmd = { "${pkgs.nodePackages.typescript-language-server}/bin/typescript-language-server", "--stdio" }
+          }
+        ''}
+
+        ${writeIf cfg.java ''
+          -- Java config
+          lspconfig.java_language_server.setup {
+            capabilities = capabilities;
+            on_attach = default_on_attach;
+            cmd = {"${pkgs.java-language-server}/bin/java-language-server", "serve"},
           }
         ''}
       '';
