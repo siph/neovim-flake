@@ -21,6 +21,7 @@
     p.tree-sitter-css
     p.tree-sitter-graphql
     p.tree-sitter-java
+    p.tree-sitter-kotlin
   ]);
 
   buildPlug = name:

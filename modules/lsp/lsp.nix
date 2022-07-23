@@ -32,6 +32,7 @@ in {
     go = mkEnableOption "Go language LSP";
     ts = mkEnableOption "TS language LSP";
     java = mkEnableOption "Java language LSP";
+    kotlin = mkEnableOption "Kotlin language LSP";
   };
 
   config = mkIf cfg.enable (
@@ -333,6 +334,15 @@ in {
             capabilities = capabilities;
             on_attach = default_on_attach;
             cmd = {"${pkgs.java-language-server}/bin/java-language-server", "serve"},
+          }
+        ''}
+
+        ${writeIf cfg.kotlin ''
+          -- Kotlin config
+          lspconfig.kotlin_language_server.setup {
+            capabilities = capabilities;
+            on_attach = default_on_attach;
+            cmd = {"${pkgs.kotlin-language-server}/bin/kotlin-language-server"},
           }
         ''}
       '';
