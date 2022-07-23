@@ -20,6 +20,7 @@
     p.tree-sitter-javascript
     p.tree-sitter-css
     p.tree-sitter-graphql
+    p.tree-sitter-java
   ]);
 
   buildPlug = name:
