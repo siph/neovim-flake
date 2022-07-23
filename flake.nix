@@ -330,6 +330,8 @@
               enable = true;
               fillChar = "";
               eolChar = "";
+              listChar = "";
+              trailChar = "●";
               showCurrContext = true;
             };
             cursorWordline = {

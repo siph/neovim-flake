@@ -57,6 +57,11 @@ in {
         description = "Character at end of line";
       };
 
+      trailChar = mkOption {
+        type = types.str;
+        description = "Character after end of line";
+      };
+
       showCurrContext = mkOption {
         type = types.bool;
         description = "Highlight current context from treesitter";
@@ -114,6 +119,12 @@ in {
               if cfg.indentBlankline.fillChar == ""
               then ""
               else ''vim.opt.listchars:append({ space = "${cfg.indentBlankline.fillChar}"})''
+            }
+
+            ${
+              if cfg.indentBlankline.trailChar == ""
+              then ""
+              else ''vim.opt.listchars:append({ trail = "${cfg.indentBlankline.trailChar}" })''
             }
 
             require("indent_blankline").setup {
