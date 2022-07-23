@@ -269,25 +269,6 @@
         pluginOverlay
         (final: prev: {
           rnix-lsp = inputs.rnix-lsp.defaultPackage.${system};
-          rust-analyzer-unwrapped = prev.rust-analyzer-unwrapped.overrideAttrs (old: rec {
-            pname = "rust-analyzer-unwrapped";
-            version = "2022-04-25";
-
-            src = prev.fetchFromGitHub {
-              owner = "rust-analyzer";
-              repo = "rust-analyzer";
-              rev = version;
-              sha256 = "sha256-D8H1lEeoCwb8pJ3DOVAtEh1+wF4yfsaGuNjyZwSdZII=";
-            };
-
-            cargoDeps = old.cargoDeps.overrideAttrs (prev.lib.const {
-              name = "${pname}-vendor.tar.gz";
-              inherit src;
-              outputHash = "sha256-VHRgMBjecUlwIErs34OUnvoDUwLHdnT5inZae1b6OfU=";
-            });
-
-            RUST_ANALYZER_VER = version;
-          });
         })
         inputs.neovim-overlay.overlay
       ];
