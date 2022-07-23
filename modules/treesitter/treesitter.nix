@@ -23,6 +23,13 @@ in {
       type = types.bool;
       description = "enable autoclose and rename html tag [nvim-ts-autotag]";
     };
+
+    rainbow = {
+      enable = mkOption {
+        type = types.bool;
+        description = "enable tree-sitter-rainbow [nvim-ts-rainbow]";
+      };
+    };
   };
 
   config = mkIf cfg.enable (
@@ -34,6 +41,7 @@ in {
     in {
       vim.startPlugins = with pkgs.neovimPlugins; [
         nvim-treesitter
+        pkgs.vimPlugins.nvim-ts-rainbow
         (
           if cfg.autotagHtml
           then nvim-ts-autotag
@@ -57,6 +65,22 @@ in {
             disable = {},
           },
 
+          ${writeIf cfg.rainbow.enable ''
+            rainbow = {
+              enable = true,
+              extended_mode = true,
+              max_file_lines = 10000,
+              colors = {
+                "#b16286",
+                "#076678",
+                "#458588",
+                "#689d6a",
+                "#d79921",
+                "#d65d0e",
+                "#cc241d"
+              }
+          },
+        ''}
           incremental_selection = {
             enable = true,
             keymaps = {

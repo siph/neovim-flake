@@ -359,6 +359,7 @@
             enable = true;
             autotagHtml = true;
             context.enable = true;
+            rainbow.enable = true;
           };
           vim.keys = {
             enable = true;
