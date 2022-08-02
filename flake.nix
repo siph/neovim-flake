@@ -308,7 +308,7 @@
           vim.vimAlias = true;
           vim.lsp = {
             enable = true;
-            formatOnSave = true;
+            formatOnSave = false;
             lightbulb.enable = true;
             lspsaga.enable = false;
             nvimCodeActionMenu.enable = true;
