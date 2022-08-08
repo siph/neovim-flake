@@ -355,7 +355,11 @@
             enable = true;
             type = "nvim-cmp";
           };
-          vim.filetree.nvimTreeLua.enable = true;
+          vim.filetree.nvimTreeLua = {
+            enable = true;
+            groupEmptyFolders = false;
+            indentMarkers = false;
+          };
           vim.tabline.nvimBufferline.enable = true;
           vim.treesitter = {
             enable = true;
