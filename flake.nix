@@ -10,7 +10,7 @@
 
     # LSP plugins
     nvim-lspconfig = {
-      url = "github:neovim/nvim-lspconfig?ref=v0.1.3";
+      url = "github:neovim/nvim-lspconfig";
       flake = false;
     };
     nvim-treesitter = {
