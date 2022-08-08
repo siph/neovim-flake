@@ -135,11 +135,6 @@ in {
         "<leader>tf" = ":NvimTreeFindFile<CR>";
       };
 
-      vim.globals = {
-        "nvim_tree_add_trailing" = mkVimBool cfg.trailingSlash;
-        "nvim_tree_group_empty" = mkVimBool cfg.groupEmptyFolders;
-      };
-
       vim.luaConfigRC = ''
         require'nvim-tree'.setup({
           disable_netrw = ${boolToString cfg.disableNetRW},
@@ -154,6 +149,8 @@ in {
             side = ${"'" + cfg.treeSide + "'"},
           },
           renderer = {
+            add_trailing = ${boolToString cfg.trailingSlash},
+            group_empty = ${boolToString cfg.groupEmptyFolders},
             indent_markers = {
               enable = ${boolToString cfg.indentMarkers},
             },
