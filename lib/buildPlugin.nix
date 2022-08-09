@@ -11,7 +11,7 @@
     p.tree-sitter-nix
     p.tree-sitter-python
     p.tree-sitter-rust
-    p.tree-sitter-markdown
+    p.tree-sitter-markdown-inline
     p.tree-sitter-comment
     p.tree-sitter-toml
     p.tree-sitter-make
