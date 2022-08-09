@@ -29,8 +29,8 @@ in {
       ];
 
       vim.nnoremap = {
-        "<S-l>" = ":BufferLineCycleNext<CR>";
-        "<S-h>" = ":BufferLineCyclePrev<CR>";
+        "<A-l>" = ":BufferLineCycleNext<CR>";
+        "<A-h>" = ":BufferLineCyclePrev<CR>";
       };
 
       vim.luaConfigRC = ''
