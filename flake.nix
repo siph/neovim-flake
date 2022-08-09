@@ -316,11 +316,11 @@
             lspSignature.enable = true;
             rust.enable = true;
             nix = true;
-            python = true;
-            clang = true;
+            python = false;
+            clang = false;
             sql = true;
-            ts = true;
-            go = true;
+            ts = false;
+            go = false;
             java = true;
             kotlin = true;
           };
