@@ -323,6 +323,7 @@
             go = false;
             java = true;
             kotlin = true;
+            lua = true;
           };
           vim.visuals = {
             enable = true;

@@ -22,6 +22,7 @@
     p.tree-sitter-graphql
     p.tree-sitter-java
     p.tree-sitter-kotlin
+    p.tree-sitter-lua
   ]);
 
   buildPlug = name:

@@ -33,6 +33,7 @@ in {
     ts = mkEnableOption "TS language LSP";
     java = mkEnableOption "Java language LSP";
     kotlin = mkEnableOption "Kotlin language LSP";
+    lua = mkEnableOption "Lua Language LSP";
   };
 
   config = mkIf cfg.enable (
@@ -343,6 +344,26 @@ in {
             capabilities = capabilities;
             on_attach = default_on_attach;
             cmd = {"${pkgs.kotlin-language-server}/bin/kotlin-language-server"},
+          }
+        ''}
+
+        ${writeIf cfg.lua ''
+          -- Kotlin config
+          lspconfig.sumneko_lua.setup {
+            capabilities = capabilities;
+            on_attach = default_on_attach;
+            cmd = {"${pkgs.sumneko-lua-language-server}/bin/lua-language-server"},
+            Lua = {
+              runtime = {
+                version = 'LuaJIT',
+              },
+              diagnostice = {
+                globals = {},
+              },
+              telemetry = {
+                enable = false;
+              };
+            }
           }
         ''}
       '';
