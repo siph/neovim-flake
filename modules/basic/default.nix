@@ -133,6 +133,11 @@ in {
       type = types.bool;
       description = "Briefly highlight yanked text";
     };
+
+    spell = mkOption {
+      type = types.bool;
+      description = "Enable spellchecking";
+    };
   };
 
   config = (
@@ -167,6 +172,7 @@ in {
       vim.quickWrite = mkDefault true;
       vim.quickClose = mkDefault true;
       vim.highlightOnYank = mkDefault true;
+      vim.spell = mkDefault false;
 
       vim.startPlugins = with pkgs.neovimPlugins; [plenary-nvim];
 
@@ -232,6 +238,9 @@ in {
         set tm=${toString cfg.mapTimeout}
         set hidden
         set scrolloff=${toString cfg.scrollOff}
+        ${writeIf cfg.spell ''
+          set spell
+        ''}
         ${writeIf cfg.splitBelow ''
           set splitbelow
         ''}

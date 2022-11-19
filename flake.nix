@@ -384,6 +384,7 @@
             gitsigns.enable = true;
           };
           vim.scrollOff = 15;
+          vim.spell = true;
         };
       };
     };
