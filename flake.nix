@@ -269,6 +269,18 @@
         pluginOverlay
         (final: prev: {
           rnix-lsp = inputs.rnix-lsp.defaultPackage.${system};
+          # https://github.com/p00f/nvim-ts-rainbow is no longer maintained
+          # This is an overlay until a definite fork is established and packaged
+          vimPlugins.nvim-ts-rainbow = inputs.nixpkgs.legacyPackages.${system}.vimUtils.buildVimPluginFrom2Nix rec {
+            pname = "nvim-ts-rainbow";
+            version = "a36985818660e7805d60ea9d996d135ab1540b63";
+            src = inputs.nixpkgs.legacyPackages.${system}.fetchFromGitHub {
+              owner = "mrjones2014";
+              repo = "nvim-ts-rainbow";
+              rev = "${version}";
+              sha256 = "71/dbTPL3zB3oZaHTMvPWmcsr7cyctymzGnRG31H/6w=";
+            };
+          };
         })
         inputs.neovim-overlay.overlay
       ];
