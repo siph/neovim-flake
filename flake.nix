@@ -1,20 +1,19 @@
 {
   description = "Chris' Neovim Configuration";
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/master";
-
-    neovim-overlay = {
-      url = "github:nix-community/neovim-nightly-overlay/master";
-      inputs.nixpkgs.follows = "nixpkgs";
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
+    # For generating documentation website
+    nmd = {
+      url = "gitlab:rycee/nmd";
+      flake = false;
     };
 
     # LSP plugins
     nvim-lspconfig = {
+      # url = "github:neovim/nvim-lspconfig?ref=v0.1.3";
+      # Use master for nil_ls
       url = "github:neovim/nvim-lspconfig";
-      flake = false;
-    };
-    nvim-treesitter = {
-      url = "github:nvim-treesitter/nvim-treesitter";
       flake = false;
     };
     lspsaga = {
@@ -77,6 +76,11 @@
 
     # Langauge server (use master instead of nixpkgs)
     rnix-lsp.url = "github:nix-community/rnix-lsp";
+    nil = {
+      url = "github:oxalica/nil";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
+    };
 
     # Filetrees
     nvim-tree-lua = {
@@ -86,7 +90,7 @@
 
     # Tablines
     nvim-bufferline-lua = {
-      url = "github:akinsho/nvim-bufferline.lua";
+      url = "github:akinsho/nvim-bufferline.lua?ref=v3.0.1";
       flake = false;
     };
 
@@ -164,6 +168,16 @@
       flake = false;
     };
 
+    onedark = {
+      url = "github:navarasu/onedark.nvim";
+      flake = false;
+    };
+
+    catppuccin = {
+      url = "github:catppuccin/nvim";
+      flake = false;
+    };
+
     gruvbox = {
       url = "github:morhetz/gruvbox";
       flake = false;
@@ -205,9 +219,30 @@
       flake = false;
     };
 
+    # Tidal cycles
+    tidalcycles = {
+      url = "github:mitchmindtree/tidalcycles.nix";
+      inputs.vim-tidal-src.url = "github:tidalcycles/vim-tidal";
+    };
+
     # Plenary (required by crates-nvim)
     plenary-nvim = {
       url = "github:nvim-lua/plenary.nvim";
+      flake = false;
+    };
+
+    open-browser = {
+      url = "github:tyru/open-browser.vim";
+      flake = false;
+    };
+
+    plantuml-syntax = {
+      url = "github:aklt/plantuml-syntax";
+      flake = false;
+    };
+
+    plantuml-previewer = {
+      url = "github:weirongxu/plantuml-previewer.vim";
       flake = false;
     };
   };
@@ -217,188 +252,203 @@
     flake-utils,
     ...
   } @ inputs: let
-    system = "x86_64-linux";
+    modulesWithInputs = import ./modules {inherit inputs;};
 
-    # Plugin must be same as input name
-    plugins = [
-      "nvim-treesitter-context"
-      "gitsigns-nvim"
-      "plenary-nvim"
-      "nvim-lspconfig"
-      "nvim-treesitter"
-      "lspsaga"
-      "lspkind"
-      "nvim-lightbulb"
-      "lsp-signature"
-      "nvim-tree-lua"
-      "nvim-bufferline-lua"
-      "lualine"
-      "nvim-compe"
-      "nvim-autopairs"
-      "nvim-ts-autotag"
-      "nvim-web-devicons"
-      "tokyonight"
-      "bufdelete-nvim"
-      "nvim-cmp"
-      "cmp-nvim-lsp"
-      "cmp-buffer"
-      "cmp-vsnip"
-      "cmp-path"
-      "cmp-treesitter"
-      "crates-nvim"
-      "vim-vsnip"
-      "nvim-code-action-menu"
-      "trouble"
-      "null-ls"
-      "which-key"
-      "indent-blankline"
-      "nvim-cursorline"
-      "sqls-nvim"
-      "glow-nvim"
-      "telescope"
-      "rust-tools"
-      "gruvbox"
-    ];
-
-    pluginOverlay = lib.buildPluginOverlay;
-
-    pkgs = import nixpkgs {
-      inherit system;
-      config = {allowUnfree = true;};
-      overlays = [
-        pluginOverlay
-        (final: prev: {
-          rnix-lsp = inputs.rnix-lsp.defaultPackage.${system};
-          # https://github.com/p00f/nvim-ts-rainbow is no longer maintained
-          # This is an overlay until a definite fork is established and packaged
-          vimPlugins.nvim-ts-rainbow = inputs.nixpkgs.legacyPackages.${system}.vimUtils.buildVimPluginFrom2Nix rec {
-            pname = "nvim-ts-rainbow";
-            version = "a36985818660e7805d60ea9d996d135ab1540b63";
-            src = inputs.nixpkgs.legacyPackages.${system}.fetchFromGitHub {
-              owner = "mrjones2014";
-              repo = "nvim-ts-rainbow";
-              rev = "${version}";
-              sha256 = "71/dbTPL3zB3oZaHTMvPWmcsr7cyctymzGnRG31H/6w=";
-            };
-          };
-        })
-        inputs.neovim-overlay.overlay
-      ];
-    };
-
-    lib =
-      import
-      ./lib
-      {inherit pkgs inputs plugins;};
-
-    neovimBuilder = lib.neovimBuilder;
-  in rec {
-    apps.${system} = rec {
-      nvim = {
-        type = "app";
-        program = "${packages.${system}.default}/bin/nvim";
-      };
-
-      default = nvim;
-    };
-
-    devShells.${system}.default = pkgs.mkShell {
-      buildInputs = [packages.${system}.neovimChris];
-    };
-
-    overlays.default = final: prev: {
-      inherit neovimBuilder;
-      neovimChris = packages.${system}.neovimChris;
-      neovimPlugins = pkgs.neovimPlugins;
-    };
-
-    packages.${system} = rec {
-      default = neovimChris;
-      neovimChris = neovimBuilder {
-        config = {
-          vim.viAlias = false;
-          vim.vimAlias = true;
-          vim.lsp = {
-            enable = true;
-            formatOnSave = false;
-            lightbulb.enable = true;
-            lspsaga.enable = false;
-            nvimCodeActionMenu.enable = true;
-            trouble.enable = true;
-            lspSignature.enable = true;
-            rust.enable = true;
-            nix = true;
-            python = false;
-            clang = false;
-            sql = true;
-            ts = false;
-            go = false;
-            java = true;
-            kotlin = true;
-            lua = true;
-          };
-          vim.visuals = {
-            enable = true;
-            nvimWebDevicons.enable = true;
-            lspkind.enable = true;
-            indentBlankline = {
-              enable = true;
-              fillChar = "";
-              eolChar = "";
-              listChar = "";
-              trailChar = "●";
-              showCurrContext = true;
-            };
-            cursorWordline = {
-              enable = true;
-              lineTimeout = 0;
-            };
-          };
-          vim.statusline.lualine = {
-            enable = true;
-            theme = "gruvbox";
-          };
-          vim.theme = {
-            enable = true;
-            name = "gruvbox";
-            style = "hard";
-          };
-          vim.autopairs.enable = true;
-          vim.autocomplete = {
-            enable = true;
-            type = "nvim-cmp";
-          };
-          vim.filetree.nvimTreeLua = {
-            enable = true;
-            groupEmptyFolders = false;
-            indentMarkers = false;
-          };
-          vim.tabline.nvimBufferline.enable = true;
-          vim.treesitter = {
-            enable = true;
-            autotagHtml = true;
-            context.enable = true;
-            rainbow.enable = true;
-          };
-          vim.keys = {
-            enable = true;
-            whichKey.enable = true;
-          };
-          vim.telescope = {
-            enable = true;
-          };
-          vim.markdown = {
-            enable = true;
-            glow.enable = true;
-          };
-          vim.git = {
-            enable = true;
-            gitsigns.enable = true;
-          };
-          vim.scrollOff = 15;
-          vim.spell = true;
+    neovimConfiguration = {
+      modules ? [],
+      pkgs,
+      lib ? pkgs.lib,
+      check ? true,
+      extraSpecialArgs ? {},
+    }:
+      modulesWithInputs {
+        inherit pkgs lib check extraSpecialArgs;
+        configuration = {...}: {
+          imports = modules;
         };
       };
+
+    nvimBin = pkg: "${pkg}/bin/nvim";
+
+    buildPkg = pkgs: modules:
+      (neovimConfiguration {
+        inherit pkgs modules;
+      })
+      .neovim;
+
+    tidalConfig = {
+      config = {
+        vim.tidal.enable = true;
+      };
     };
-  };
+
+    mainConfig = isMaximal: {
+      config = {
+        vim.viAlias = false;
+        vim.vimAlias = true;
+        vim.lsp = {
+          enable = true;
+          formatOnSave = false;
+          lightbulb.enable = true;
+          lspsaga.enable = false;
+          nvimCodeActionMenu.enable = true;
+          trouble.enable = true;
+          lspSignature.enable = true;
+          nix = {
+            enable = true;
+            formatter = "alejandra";
+          };
+          rust.enable = true;
+          python = false;
+          clang.enable = false;
+          sql = true;
+          ts = false;
+          go = false;
+          zig.enable = false;
+          java = true;
+          kotlin = true;
+          lua = true;
+        };
+        vim.visuals = {
+          enable = true;
+          nvimWebDevicons.enable = true;
+          lspkind.enable = true;
+          indentBlankline = {
+            enable = true;
+            fillChar = "";
+            eolChar = "";
+            listChar = "";
+            trailChar = "●";
+            showCurrContext = true;
+          };
+          cursorWordline = {
+            enable = true;
+            lineTimeout = 0;
+          };
+        };
+        vim.statusline.lualine = {
+          enable = true;
+          theme = "gruvbox";
+        };
+        vim.theme = {
+          enable = true;
+          name = "gruvbox";
+          style = "hard";
+        };
+        vim.autopairs.enable = true;
+        vim.autocomplete = {
+          enable = true;
+          type = "nvim-cmp";
+        };
+        vim.filetree.nvimTreeLua = {
+          enable = true;
+          groupEmptyFolders = false;
+          indentMarkers = false;
+          treeWidth = 30;
+          hideFiles = [];
+        };
+        vim.tabline.nvimBufferline.enable = true;
+        vim.treesitter = {
+          enable = true;
+          context.enable = true;
+          rainbow.enable = true;
+        };
+        vim.keys = {
+          enable = true;
+          whichKey.enable = true;
+        };
+        vim.telescope = {
+          enable = true;
+        };
+        vim.markdown = {
+          enable = true;
+          glow.enable = true;
+        };
+        vim.git = {
+          enable = true;
+          gitsigns.enable = true;
+        };
+        vim.plantuml.enable = true;
+      };
+    };
+
+    nixConfig = mainConfig false;
+    maximalConfig = mainConfig true;
+  in
+    {
+      lib = {
+        nvim = (import ./modules/lib/stdlib-extended.nix nixpkgs.lib).nvim;
+        inherit neovimConfiguration;
+      };
+
+      overlays.default = final: prev: {
+        inherit neovimConfiguration;
+        neovim-nix = buildPkg prev [nixConfig];
+        neovim-maximal = buildPkg prev [maximalConfig];
+        neovim-tidal = buildPkg prev [tidalConfig];
+      };
+    }
+    // (flake-utils.lib.eachDefaultSystem (system: let
+      pkgs = import nixpkgs {
+        inherit system;
+        overlays = [
+          inputs.tidalcycles.overlays.default
+          (final: prev: {
+            rnix-lsp = inputs.rnix-lsp.defaultPackage.${system};
+            nil = inputs.nil.packages.${system}.default;
+          })
+        ];
+      };
+
+      docs = import ./docs {
+        inherit pkgs;
+        nmdSrc = inputs.nmd;
+      };
+
+      tidalPkg = buildPkg pkgs [tidalConfig];
+      nixPkg = buildPkg pkgs [nixConfig];
+      maximalPkg = buildPkg pkgs [maximalConfig];
+    in {
+      apps =
+        rec {
+          nix = {
+            type = "app";
+            program = nvimBin nixPkg;
+          };
+          maximal = {
+            type = "app";
+            program = nvimBin maximalPkg;
+          };
+          default = nix;
+        }
+        // (
+          if !(builtins.elem system ["aarch64-darwin" "x86_64-darwin"])
+          then {
+            tidal = {
+              type = "app";
+              program = nvimBin tidalPkg;
+            };
+          }
+          else {}
+        );
+
+      devShells.default = pkgs.mkShell {nativeBuildInputs = [nixPkg];};
+
+      packages =
+        {
+          docs-html = docs.manual.html;
+          docs-manpages = docs.manPages;
+          docs-json = docs.options.json;
+          default = nixPkg;
+          nix = nixPkg;
+          maximal = maximalPkg;
+        }
+        // (
+          if !(builtins.elem system ["aarch64-darwin" "x86_64-darwin"])
+          then {
+            tidal = tidalPkg;
+          }
+          else {}
+        );
+    }));
 }

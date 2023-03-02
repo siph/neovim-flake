@@ -22,13 +22,13 @@ in {
     };
 
     treeWidth = mkOption {
-      default = 30;
+      default = 25;
       description = "Width of the tree in charecters";
       type = types.int;
     };
 
     hideFiles = mkOption {
-      default = [];
+      default = [".git" "node_modules" ".cache"];
       description = "Files to hide in the file view by default.";
       type = with types; listOf str;
     };
@@ -59,7 +59,13 @@ in {
 
     closeOnFileOpen = mkOption {
       default = false;
-      description = "Close the tree when a file is opened";
+      description = "Closes the tree when a file is opened.";
+      type = types.bool;
+    };
+
+    resizeOnFileOpen = mkOption {
+      default = false;
+      description = "Resizes the tree when opening a file.";
       type = types.bool;
     };
 
@@ -116,62 +122,65 @@ in {
       description = "Shows lsp diagnostics in the tree";
       type = types.bool;
     };
+
+    systemOpenCmd = mkOption {
+      default = "${pkgs.xdg-utils}/bin/xdg-open";
+      description = "The command used to open a file with the associated default program";
+      type = types.str;
+    };
   };
 
-  config = mkIf cfg.enable (
-    let
-      mkVimBool = val:
-        if val
-        then 1
-        else 0;
-    in {
-      vim.startPlugins = with pkgs.neovimPlugins; [
-        nvim-tree-lua
-      ];
+  config = mkIf cfg.enable {
+    vim.startPlugins = ["nvim-tree-lua"];
 
-      vim.nnoremap = {
-        "<C-n>" = ":NvimTreeToggle<CR>";
-        "<leader>tr" = ":NvimTreeRefresh<CR>";
-        "<leader>tf" = ":NvimTreeFindFile<CR>";
-      };
+    vim.nnoremap = {
+      "<C-n>" = ":NvimTreeToggle<CR>";
+      "<leader>tr" = ":NvimTreeRefresh<CR>";
+      "<leader>tg" = ":NvimTreeFindFile<CR>";
+      "<leader>tf" = ":NvimTreeFocus<CR>";
+    };
 
-      vim.luaConfigRC = ''
-        require'nvim-tree'.setup({
-          disable_netrw = ${boolToString cfg.disableNetRW},
-          hijack_netrw = ${boolToString cfg.hijackNetRW},
-          open_on_tab = ${boolToString cfg.openTreeOnNewTab},
-          open_on_setup = ${boolToString cfg.openOnSetup},
-          diagnostics = {
-            enable = ${boolToString cfg.lspDiagnostics},
+    vim.luaConfigRC.nvimtreelua = nvim.dag.entryAnywhere ''
+      require'nvim-tree'.setup({
+        disable_netrw = ${boolToString cfg.disableNetRW},
+        hijack_netrw = ${boolToString cfg.hijackNetRW},
+        open_on_tab = ${boolToString cfg.openTreeOnNewTab},
+        open_on_setup = ${boolToString cfg.openOnSetup},
+        open_on_setup_file = ${boolToString cfg.openOnSetup},
+        system_open = {
+          cmd = ${"'" + cfg.systemOpenCmd + "'"},
+        },
+        diagnostics = {
+          enable = ${boolToString cfg.lspDiagnostics},
+        },
+        view  = {
+          width = ${toString cfg.treeWidth},
+          side = ${"'" + cfg.treeSide + "'"},
+        },
+        renderer = {
+          indent_markers = {
+            enable = ${boolToString cfg.indentMarkers},
           },
-          view  = {
-            width = ${toString cfg.treeWidth},
-            side = ${"'" + cfg.treeSide + "'"},
+          add_trailing = ${boolToString cfg.trailingSlash},
+          group_empty = ${boolToString cfg.groupEmptyFolders},
+        },
+        actions = {
+          open_file = {
+            quit_on_open = ${boolToString cfg.closeOnFileOpen},
+            resize_window = ${boolToString cfg.resizeOnFileOpen},
           },
-          renderer = {
-            add_trailing = ${boolToString cfg.trailingSlash},
-            group_empty = ${boolToString cfg.groupEmptyFolders},
-            indent_markers = {
-              enable = ${boolToString cfg.indentMarkers},
-            },
+        },
+        git = {
+          enable = true,
+          ignore = ${boolToString cfg.hideIgnoredGitFiles},
+        },
+        filters = {
+          dotfiles = ${boolToString cfg.hideDotFiles},
+          custom = {
+            ${builtins.concatStringsSep "\n" (builtins.map (s: "\"" + s + "\",") cfg.hideFiles)}
           },
-          actions = {
-            open_file = {
-              quit_on_open = ${boolToString cfg.closeOnFileOpen},
-            },
-          },
-          git = {
-            enable = true,
-            ignore = ${boolToString cfg.hideIgnoredGitFiles},
-          },
-          filters = {
-            dotfiles = ${boolToString cfg.hideDotFiles},
-            custom = {
-              ${builtins.concatStringsSep "\n" (builtins.map (s: "\"" + s + "\",") cfg.hideFiles)}
-            },
-          },
-        })
-      '';
-    }
-  );
+        },
+      })
+    '';
+  };
 }

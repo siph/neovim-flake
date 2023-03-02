@@ -29,6 +29,7 @@ with lib; {
               "branch",
               separator = '',
             },
+            "diff",
           }
         '';
         c = mkDefault "{{'filename', path = 1}}";
@@ -43,6 +44,8 @@ with lib; {
             {
               "filetype",
             },
+            "fileformat",
+            "encoding",
           }
         '';
         y = mkDefault "{'progress'}";

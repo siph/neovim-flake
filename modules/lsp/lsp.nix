@@ -11,7 +11,29 @@ in {
   options.vim.lsp = {
     enable = mkEnableOption "neovim lsp support";
     formatOnSave = mkEnableOption "Format on save";
-    nix = mkEnableOption "Nix LSP";
+    nix = {
+      enable = mkEnableOption "Nix LSP";
+      server = mkOption {
+        type = with types; enum ["rnix" "nil"];
+        default = "nil";
+        description = "Which LSP to use";
+      };
+
+      pkg = mkOption {
+        type = types.package;
+        default =
+          if (cfg.nix.server == "rnix")
+          then pkgs.rnix-lsp
+          else pkgs.nil;
+        description = "The LSP package to use";
+      };
+
+      formatter = mkOption {
+        type = with types; enum ["nixpkgs-fmt" "alejandra"];
+        default = "alejandra";
+        description = "Which nix formatter to use";
+      };
+    };
     rust = {
       enable = mkEnableOption "Rust LSP";
       rustAnalyzerOpts = mkOption {
@@ -27,10 +49,18 @@ in {
       };
     };
     python = mkEnableOption "Python LSP";
-    clang = mkEnableOption "C language LSP";
+    clang = {
+      enable = mkEnableOption "C language LSP";
+      c_header = mkEnableOption "C syntax header files";
+      cclsOpts = mkOption {
+        type = types.str;
+        default = "";
+      };
+    };
     sql = mkEnableOption "SQL Language LSP";
     go = mkEnableOption "Go language LSP";
     ts = mkEnableOption "TS language LSP";
+    zig.enable = mkEnableOption "Zig language LSP";
     java = mkEnableOption "Java language LSP";
     kotlin = mkEnableOption "Kotlin language LSP";
     lua = mkEnableOption "Lua Language LSP";
@@ -43,53 +73,33 @@ in {
         then msg
         else "";
     in {
-      vim.startPlugins = with pkgs.neovimPlugins;
+      vim.startPlugins =
         [
-          nvim-lspconfig
-          null-ls
+          "nvim-lspconfig"
+          "null-ls"
           (
             if (config.vim.autocomplete.enable && (config.vim.autocomplete.type == "nvim-cmp"))
-            then cmp-nvim-lsp
+            then "cmp-nvim-lsp"
             else null
           )
           (
             if cfg.sql
-            then sqls-nvim
+            then "sqls-nvim"
             else null
           )
         ]
         ++ (
           if cfg.rust.enable
           then [
-            crates-nvim
-            rust-tools
+            "crates-nvim"
+            "rust-tools"
           ]
           else []
         );
 
-      vim.configRC = ''
+      vim.configRC.lsp = nvim.dag.entryAnywhere ''
         ${
-          if cfg.rust.enable
-          then ''
-            function! MapRustTools()
-              nnoremap <silent><leader>ri <cmd>lua require('rust-tools.inlay_hints').toggle_inlay_hints()<CR>
-              nnoremap <silent><leader>rr <cmd>lua require('rust-tools.runnables').runnables()<CR>
-              nnoremap <silent><leader>re <cmd>lua require('rust-tools.expand_macro').expand_macro()<CR>
-              nnoremap <silent><leader>rc <cmd>lua require('rust-tools.open_cargo_toml').open_cargo_toml()<CR>
-              nnoremap <silent><leader>rg <cmd>lua require('rust-tools.crate_graph').view_crate_graph('x11', nil)<CR>
-            endfunction
-
-            autocmd filetype rust nnoremap <silent><leader>ri <cmd>lua require('rust-tools.inlay_hints').toggle_inlay_hints()<CR>
-            autocmd filetype rust nnoremap <silent><leader>rr <cmd>lua require('rust-tools.runnables').runnables()<CR>
-            autocmd filetype rust nnoremap <silent><leader>re <cmd>lua require('rust-tools.expand_macro').expand_macro()<CR>
-            autocmd filetype rust nnoremap <silent><leader>rc <cmd>lua require('rust-tools.open_cargo_toml').open_cargo_toml()<CR>
-            autocmd filetype rust nnoremap <silent><leader>rg <cmd>lua require('rust-tools.crate_graph').view_crate_graph('x11', nil)<CR>
-          ''
-          else ""
-        }
-
-        ${
-          if cfg.nix
+          if cfg.nix.enable
           then ''
             autocmd filetype nix setlocal tabstop=2 shiftwidth=2 softtabstop=2
           ''
@@ -97,7 +107,7 @@ in {
         }
 
         ${
-          if cfg.clang
+          if cfg.clang.c_header
           then ''
             " c syntax for header (otherwise breaks treesitter highlighting)
             " https://www.reddit.com/r/neovim/comments/orfpcd/question_does_the_c_parser_from_nvimtreesitter/
@@ -106,7 +116,7 @@ in {
           else ""
         }
       '';
-      vim.luaConfigRC = ''
+      vim.luaConfigRC.lsp = nvim.dag.entryAnywhere ''
 
         local attach_keymaps = function(client, bufnr)
           local opts = { noremap=true, silent=true }
@@ -137,10 +147,12 @@ in {
               command = "${pkgs.black}/bin/black",
             }),
           ''}
+
           -- Commented out for now
           --${writeIf (config.vim.git.enable && config.vim.git.gitsigns.enable) ''
           --  null_ls.builtins.code_actions.gitsigns,
           --''}
+
           ${writeIf cfg.sql
           ''
             null_helpers.make_builtin({
@@ -164,7 +176,11 @@ in {
               extra_args = {"--dialect", "postgres"}
             }),
           ''}
-          ${writeIf cfg.nix
+
+          ${writeIf
+          (cfg.nix.enable
+            && cfg.nix.server == "rnix"
+            && cfg.nix.formatter == "alejandra")
           ''
             null_ls.builtins.formatting.alejandra.with({
               command = "${pkgs.alejandra}/bin/alejandra"
@@ -191,8 +207,10 @@ in {
             buffer = bufnr,
             callback = function()
               if vim.g.formatsave then
+                if client.supports_method("textDocument/formatting") then
                   local params = require'vim.lsp.util'.make_formatting_params({})
                   client.request('textDocument/formatting', params, nil, bufnr)
+                end
               end
             end
           })
@@ -216,30 +234,34 @@ in {
         local lspconfig = require('lspconfig')
 
         local capabilities = vim.lsp.protocol.make_client_capabilities()
-
-        ${let
-          cfg = config.vim.autocomplete;
-        in
-          writeIf cfg.enable
-          (
-            if cfg.type == "nvim-compe"
-            then ''
-              vim.capabilities.textDocument.completion.completionItem.snippetSupport = true
-              capabilities.textDocument.completion.completionItem.resolveSupport = {
-                properties = {
-                  'documentation',
-                  'detail',
-                  'additionalTextEdits',
-                }
-              }
-            ''
-            else ''
-              capabilities = require('cmp_nvim_lsp').default_capabilities()
-            ''
-          )}
+        ${
+          let
+            cfg = config.vim.autocomplete;
+          in
+            writeIf cfg.enable (
+              if cfg.type == "nvim-cmp"
+              then ''
+                capabilities = require('cmp_nvim_lsp').default_capabilities()
+              ''
+              else ""
+            )
+        }
 
         ${writeIf cfg.rust.enable ''
           -- Rust config
+          local rt = require('rust-tools')
+
+          rust_on_attach = function(client, bufnr)
+            default_on_attach(client, bufnr)
+            local opts = { noremap=true, silent=true, buffer = bufnr }
+            vim.keymap.set("n", "<leader>ris", rt.inlay_hints.set, opts)
+            vim.keymap.set("n", "<leader>riu", rt.inlay_hints.unset, opts)
+            vim.keymap.set("n", "<leader>rr", rt.runnables.runnables, opts)
+            vim.keymap.set("n", "<leader>rp", rt.parent_module.parent_module, opts)
+            vim.keymap.set("n", "<leader>rm", rt.expand_macro.expand_macro, opts)
+            vim.keymap.set("n", "<leader>rc", rt.open_cargo_toml.open_cargo_toml, opts)
+            vim.keymap.set("n", "<leader>rg", function() rt.crate_graph.view_crate_graph("x11", nil) end, opts)
+          end
 
           local rustopts = {
             tools = {
@@ -251,7 +273,7 @@ in {
             },
             server = {
               capabilities = capabilities,
-              on_attach = default_on_attach,
+              on_attach = rust_on_attach,
               cmd = {"${pkgs.rust-analyzer}/bin/rust-analyzer"},
               settings = {
                 ${cfg.rust.rustAnalyzerOpts}
@@ -265,7 +287,22 @@ in {
               name = "crates.nvim",
             }
           }
-          require('rust-tools').setup(rustopts)
+          rt.setup(rustopts)
+        ''}
+
+        ${optionalString cfg.zig.enable ''
+          -- Zig config
+          lspconfig.zls.setup {
+            capabilities = capabilities,
+            on_attach=default_on_attach,
+            cmd = {"${pkgs.zls}/bin/zls"},
+            settings = {
+              ["zls"] = {
+                zig_exe_path = "${pkgs.zig}/bin/zig",
+                zig_lib_path = "${pkgs.zig}/lib/zig",
+              }
+            }
+          }
         ''}
 
         ${writeIf cfg.python ''
@@ -277,57 +314,49 @@ in {
           }
         ''}
 
-        ${writeIf cfg.nix ''
-          -- Nix config
-          lspconfig.rnix.setup{
-            capabilities = capabilities;
-            on_attach = function(client, bufnr)
-              attach_keymaps(client, bufnr)
-            end,
-            cmd = {"${pkgs.rnix-lsp}/bin/rnix-lsp"}
-          }
-        ''}
-
-        ${writeIf cfg.clang ''
-          -- CCLS (clang) config
-          lspconfig.ccls.setup{
-            capabilities = capabilities;
-            on_attach=default_on_attach;
-            cmd = {"${pkgs.ccls}/bin/ccls"}
-          }
-        ''}
-
-        ${writeIf cfg.sql ''
-          -- SQLS config
-          lspconfig.sqls.setup {
-            on_attach = function(client)
-              client.server_capabilities.execute_command = true
-              on_attach_keymaps(client, bufnr)
-              require'sqls'.setup{}
-            end,
-            cmd = {"${pkgs.sqls}/bin/sqls", "-config", string.format("%s/config.yml", vim.fn.getcwd()) }
-          }
-        ''}
-
-        ${writeIf cfg.go ''
-          -- Go config
-          lspconfig.gopls.setup {
-            capabilities = capabilities;
-            on_attach = default_on_attach;
-            cmd = {"${pkgs.gopls}/bin/gopls", "serve"},
-          }
-        ''}
-
-        ${writeIf cfg.ts ''
-          -- TS config
-          lspconfig.tsserver.setup {
-            capabilities = capabilities;
-            on_attach = function(client, bufnr)
-              attach_keymaps(client, bufnr)
-            end,
-            cmd = { "${pkgs.nodePackages.typescript-language-server}/bin/typescript-language-server", "--stdio" }
-          }
-        ''}
+        ${writeIf cfg.nix.enable (
+          (writeIf (cfg.nix.server == "rnix") ''
+            -- Nix (rnix) config
+            lspconfig.rnix.setup{
+              capabilities = capabilities,
+              ${writeIf (cfg.nix.formatter == "alejandra")
+              ''
+                on_attach = function(client, bufnr)
+                  attach_keymaps(client, bufnr)
+                end,
+              ''}
+              ${writeIf (cfg.nix.formatter == "nixpkgs-fmt")
+              ''
+                on_attach = default_on_attach,
+              ''}
+              cmd = {"${cfg.nix.pkg}/bin/rnix-lsp"},
+            }
+          '')
+          + (writeIf (cfg.nix.server == "nil") ''
+            -- Nix (nil) config
+            lspconfig.nil_ls.setup{
+              capabilities = capabilities,
+              on_attach=default_on_attach,
+              cmd = {"${cfg.nix.pkg}/bin/nil"},
+              settings = {
+                ["nil"] = {
+              ${writeIf (cfg.nix.formatter == "alejandra")
+              ''
+                formatting = {
+                  command = {"${pkgs.alejandra}/bin/alejandra", "--quiet"},
+                },
+              ''}
+              ${writeIf (cfg.nix.formatter == "nixpkgs-fmt")
+              ''
+                formatting = {
+                  command = {"${pkgs.nixpkgs-fmt}/bin/nixpkgs-fmt"},
+                },
+              ''}
+                },
+              };
+            }
+          '')
+        )}
 
         ${writeIf cfg.java ''
           -- Java config
@@ -364,6 +393,52 @@ in {
                 enable = false;
               };
             }
+          }
+        ''}
+
+        ${writeIf cfg.clang.enable ''
+          -- CCLS (clang) config
+          lspconfig.ccls.setup{
+            capabilities = capabilities;
+            on_attach=default_on_attach;
+            cmd = {"${pkgs.ccls}/bin/ccls"};
+            ${
+            if cfg.clang.cclsOpts == ""
+            then ""
+            else "init_options = ${cfg.clang.cclsOpts}"
+          }
+          }
+        ''}
+
+        ${writeIf cfg.sql ''
+          -- SQLS config
+          lspconfig.sqls.setup {
+            on_attach = function(client)
+              client.server_capabilities.execute_command = true
+              on_attach_keymaps(client, bufnr)
+              require'sqls'.setup{}
+            end,
+            cmd = {"${pkgs.sqls}/bin/sqls", "-config", string.format("%s/config.yml", vim.fn.getcwd()) }
+          }
+        ''}
+
+        ${writeIf cfg.go ''
+          -- Go config
+          lspconfig.gopls.setup {
+            capabilities = capabilities;
+            on_attach = default_on_attach;
+            cmd = {"${pkgs.gopls}/bin/gopls", "serve"},
+          }
+        ''}
+
+        ${writeIf cfg.ts ''
+          -- TS config
+          lspconfig.tsserver.setup {
+            capabilities = capabilities;
+            on_attach = function(client, bufnr)
+              attach_keymaps(client, bufnr)
+            end,
+            cmd = { "${pkgs.nodePackages.typescript-language-server}/bin/typescript-language-server", "--stdio" }
           }
         ''}
       '';

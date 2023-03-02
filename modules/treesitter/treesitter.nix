@@ -10,25 +10,58 @@ with builtins; let
 in {
   options.vim.treesitter = {
     enable = mkOption {
+      default = false;
       type = types.bool;
       description = "enable tree-sitter [nvim-treesitter]";
     };
 
     fold = mkOption {
+      default = false;
       type = types.bool;
       description = "enable fold with tree-sitter";
     };
 
     autotagHtml = mkOption {
+      default = false;
       type = types.bool;
       description = "enable autoclose and rename html tag [nvim-ts-autotag]";
     };
 
     rainbow = {
       enable = mkOption {
+        default = false;
         type = types.bool;
         description = "enable tree-sitter-rainbow [nvim-ts-rainbow]";
       };
+    };
+
+    grammars = mkOption {
+      type = with types; listOf package;
+      default = with (pkgs.vimPlugins.nvim-treesitter.builtGrammars); [
+        c
+        comment
+        cpp
+        css
+        graphql
+        html
+        java
+        javascript
+        json
+        kotlin
+        lua
+        make
+        markdown-inline
+        nix
+        python
+        rust
+        toml
+        tsx
+        zig
+      ];
+      description = ''
+        List of treesitter grammars to install.
+        When enabling a language, its treesitter grammar is added for you.
+      '';
     };
   };
 
@@ -39,25 +72,25 @@ in {
         then msg
         else "";
     in {
-      vim.startPlugins = with pkgs.neovimPlugins; [
-        nvim-treesitter
+      vim.startPlugins = [
+        "nvim-treesitter"
         pkgs.vimPlugins.nvim-ts-rainbow
         (
           if cfg.autotagHtml
-          then nvim-ts-autotag
+          then "nvim-ts-autotag"
           else null
         )
       ];
 
-      vim.configRC = writeIf cfg.fold ''
+      # For some reason treesitter highlighting does not work on start if this is set before syntax on
+      vim.configRC.treesitter = writeIf cfg.fold (nvim.dag.entryBefore ["basic"] ''
         " Tree-sitter based folding
         set foldmethod=expr
         set foldexpr=nvim_treesitter#foldexpr()
         set nofoldenable
-      '';
+      '');
 
-      vim.luaConfigRC = let
-      in ''
+      vim.luaConfigRC.treesitter = nvim.dag.entryAnywhere ''
         -- Treesitter config
         require'nvim-treesitter.configs'.setup {
           highlight = {
@@ -79,8 +112,12 @@ in {
                 "#d65d0e",
                 "#cc241d"
               }
-          },
-        ''}
+            },
+          ''}
+
+          auto_install = false,
+          ensure_installed = {},
+
           incremental_selection = {
             enable = true,
             keymaps = {
@@ -97,8 +134,6 @@ in {
           },
         ''}
         }
-
-        local parser_config = require'nvim-treesitter.parsers'.get_parser_configs()
       '';
     }
   );

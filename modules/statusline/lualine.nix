@@ -7,6 +7,7 @@
 with lib;
 with builtins; let
   cfg = config.vim.statusline.lualine;
+  supported_themes = import ./supported_lualine_themes.nix;
 in {
   options.vim.statusline.lualine = {
     enable = mkOption {
@@ -44,7 +45,6 @@ in {
           "nightfly"
           "nord"
           "oceanicnext"
-          "onedark"
           "onelight"
           "palenight"
           "papercolor_dark"
@@ -56,9 +56,9 @@ in {
           "wombat"
         ]
         ++ (
-          if config.vim.theme.name == "tokyonight"
-          then ["tokyonight"]
-          else ["gruvbox"]
+          if elem config.vim.theme.name supported_themes
+          then [config.vim.theme.name]
+          else []
         )
       );
       description = "Theme for lualine";
@@ -163,8 +163,8 @@ in {
       #  })
       #];
 
-      vim.startPlugins = with pkgs.neovimPlugins; [lualine];
-      vim.luaConfigRC = ''
+      vim.startPlugins = ["lualine"];
+      vim.luaConfigRC.lualine = nvim.dag.entryAnywhere ''
         require'lualine'.setup {
           options = {
             icons_enabled = ${

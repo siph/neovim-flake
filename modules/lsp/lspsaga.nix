@@ -11,7 +11,7 @@ in {
   options.vim.lsp = {lspsaga = {enable = mkEnableOption "LSP Saga";};};
 
   config = mkIf (cfg.enable && cfg.lspsaga.enable) {
-    vim.startPlugins = with pkgs.neovimPlugins; [lspsaga];
+    vim.startPlugins = ["lspsaga"];
 
     vim.vnoremap = {
       "<silent><leader>ca" = ":<C-U>lua require('lspsaga.codeaction').range_code_action()<CR>";
@@ -45,7 +45,7 @@ in {
         else {}
       );
 
-    vim.luaConfigRC = ''
+    vim.luaConfigRC.lspsage = nvim.dag.entryAnywhere ''
       -- Enable lspsaga
       local saga = require 'lspsaga'
       saga.init_lsp_saga()

@@ -19,20 +19,20 @@ in {
   };
 
   config = mkIf (cfg.enable) {
-    vim.startPlugins = with pkgs.neovimPlugins; [
+    vim.startPlugins = [
       (
         if cfg.glow.enable
-        then glow-nvim
+        then "glow-nvim"
         else null
       )
     ];
 
-    vim.configRC =
-      if cfg.glow.enable
-      then ''
-        autocmd FileType markdown noremap <leader>p :Glow<CR>
-        let g:glow_binary_path = "${pkgs.glow}/bin"
-      ''
-      else "";
+    vim.globals = mkIf (cfg.glow.enable) {
+      "glow_binary_path" = "${pkgs.glow}/bin";
+    };
+
+    vim.configRC.glow = mkIf (cfg.glow.enable) (nvim.dag.entryAnywhere ''
+      autocmd FileType markdown noremap <leader>p :Glow<CR>
+    '');
   };
 }

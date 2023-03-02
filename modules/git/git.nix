@@ -29,12 +29,12 @@ in {
           then "1"
           else "0";
       in {
-        vim.startPlugins = with pkgs.neovimPlugins;
+        vim.startPlugins =
           if (cfg.gitsigns.enable)
-          then [gitsigns-nvim]
+          then ["gitsigns-nvim"]
           else [];
 
-        vim.luaConfigRC = mkIf (cfg.gitsigns.enable) ''
+        vim.luaConfigRC.gitsigns = mkIf (cfg.gitsigns.enable) (nvim.dag.entryAnywhere ''
           -- GitSigns setup
           require('gitsigns').setup {
             keymaps = {
@@ -63,7 +63,7 @@ in {
               ['x ih'] = ':<C-U>Gitsigns select_hunk<CR>'
             },
           }
-        '';
+        '');
       }
     );
 }
