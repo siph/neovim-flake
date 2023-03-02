@@ -201,6 +201,10 @@
       url = "github:lewis6991/gitsigns.nvim";
       flake = false;
     };
+    cellular-automaton = {
+      url = "github:Eandrju/cellular-automaton.nvim";
+      flake = false;
+    };
 
     # Key binding help
     which-key = {
@@ -320,6 +324,7 @@
             enable = true;
             lineTimeout = 0;
           };
+          cellular-automaton.enable = true;
         };
         vim.statusline.lualine = {
           enable = true;
