@@ -244,6 +244,22 @@
       url = "github:weirongxu/plantuml-previewer.vim";
       flake = false;
     };
+
+    # Debugging
+    nvim-dap = {
+      url = "github:mfussenegger/nvim-dap";
+      flake = false;
+    };
+
+    nvim-dap-ui = {
+      url = "github:rcarriga/nvim-dap-ui";
+      flake = false;
+    };
+
+    telescope-dap = {
+      url = "github:nvim-telescope/telescope-dap.nvim";
+      flake = false;
+    };
   };
 
   outputs = {
@@ -359,6 +375,7 @@
         };
         vim.telescope = {
           enable = true;
+          dap = true;
         };
         vim.markdown = {
           enable = true;
@@ -369,6 +386,10 @@
           gitsigns.enable = true;
         };
         vim.plantuml.enable = true;
+        vim.debugging = {
+          enable = false;
+          ui = false;
+        };
       };
     };
 

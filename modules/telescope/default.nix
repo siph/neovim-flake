@@ -10,11 +10,27 @@ with builtins; let
 in {
   options.vim.telescope = {
     enable = mkEnableOption "enable telescope";
+    dap = mkOption {
+      default = false;
+      type = types.bool;
+      description = "enable telescope-dap";
+    };
   };
 
-  config = mkIf (cfg.enable) {
+  config = mkIf cfg.enable (
+    let
+      writeIf = cond: msg:
+        if cond
+        then msg
+        else "";
+    in {
     vim.startPlugins = [
       "telescope"
+          (
+            if cfg.dap
+            then "telescope-dap"
+            else null
+          )
     ];
 
     vim.nnoremap =
@@ -72,6 +88,11 @@ in {
           },
         }
       }
+      ${writeIf cfg.dap ''
+        -- Debugging extension
+        require("telescope").load_extension("dap")
+      ''}
     '';
-  };
+    }
+  );
 }

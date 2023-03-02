@@ -4,24 +4,25 @@
   check ? true,
 }: let
   modules = [
-    ./completion
-    ./theme
-    ./core
+    ./autopairs
     ./basic
+    ./completion
+    ./core
+    ./debugging
+    ./filetree
+    ./git
+    ./keys
+    ./lsp
+    ./markdown
+    ./plantuml
+    ./snippets
     ./statusline
     ./tabline
-    ./filetree
-    ./visuals
-    ./lsp
-    ./treesitter
-    ./tidal
-    ./autopairs
-    ./snippets
-    ./keys
-    ./markdown
     ./telescope
-    ./git
-    ./plantuml
+    ./theme
+    ./tidal
+    ./treesitter
+    ./visuals
   ];
 
   pkgsModule = {config, ...}: {
