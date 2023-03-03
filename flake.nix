@@ -361,6 +361,7 @@
           groupEmptyFolders = false;
           indentMarkers = false;
           treeWidth = 30;
+          openOnSetupFile = false;
           hideFiles = [];
         };
         vim.tabline.nvimBufferline.enable = true;
@@ -375,7 +376,7 @@
         };
         vim.telescope = {
           enable = true;
-          dap = true;
+          dap = false;
         };
         vim.markdown = {
           enable = true;

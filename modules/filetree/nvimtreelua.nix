@@ -45,6 +45,12 @@ in {
       type = types.bool;
     };
 
+    openOnSetupFile = mkOption {
+      default = true;
+      description = "Open when vim is started with a file";
+      type = types.bool;
+    };
+
     closeOnLastWindow = mkOption {
       default = true;
       description = "Close when tree is last window open";
@@ -146,7 +152,7 @@ in {
         hijack_netrw = ${boolToString cfg.hijackNetRW},
         open_on_tab = ${boolToString cfg.openTreeOnNewTab},
         open_on_setup = ${boolToString cfg.openOnSetup},
-        open_on_setup_file = ${boolToString cfg.openOnSetup},
+        open_on_setup_file = ${boolToString cfg.openOnSetupFile},
         system_open = {
           cmd = ${"'" + cfg.systemOpenCmd + "'"},
         },
