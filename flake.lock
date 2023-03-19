@@ -606,6 +606,22 @@
         "type": "github"
       }
     },
+    "nvim-nu": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1678214502,
+        "narHash": "sha256-Xbkt1Hf+3Rgd6PGaLj75ZCQ3lSQhbLCxN2QJd5hCk2k=",
+        "owner": "LhKipp",
+        "repo": "nvim-nu",
+        "rev": "f45f36a97fb0ea6e39f08cc2fac7a2fb3dc3999b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "LhKipp",
+        "repo": "nvim-nu",
+        "type": "github"
+      }
+    },
     "nvim-tree-lua": {
       "flake": false,
       "locked": {
@@ -821,6 +837,7 @@
         "nvim-lightbulb": "nvim-lightbulb",
         "nvim-lspconfig": "nvim-lspconfig",
         "nvim-neoclip": "nvim-neoclip",
+        "nvim-nu": "nvim-nu",
         "nvim-tree-lua": "nvim-tree-lua",
         "nvim-treesitter-context": "nvim-treesitter-context",
         "nvim-ts-autotag": "nvim-ts-autotag",

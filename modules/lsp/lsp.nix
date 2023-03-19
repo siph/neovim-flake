@@ -64,6 +64,7 @@ in {
     java = mkEnableOption "Java language LSP";
     kotlin = mkEnableOption "Kotlin language LSP";
     lua = mkEnableOption "Lua Language LSP";
+    nu = mkEnableOption "Nushell Language LSP";
   };
 
   config = mkIf cfg.enable (
@@ -85,6 +86,11 @@ in {
           (
             if cfg.sql
             then "sqls-nvim"
+            else null
+          )
+          (
+            if cfg.nu
+            then "nvim-nu"
             else null
           )
         ]
@@ -199,6 +205,8 @@ in {
           then "true"
           else "false"
         };
+
+        require'nu'.setup{}
 
         -- Enable formatting
         format_callback = function(client, bufnr)

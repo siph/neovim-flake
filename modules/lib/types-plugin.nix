@@ -30,6 +30,7 @@ with lib; let
     "nvim-dap-ui"
     "nvim-lightbulb"
     "nvim-lspconfig"
+    "nvim-nu"
     "nvim-tree-lua"
     "nvim-treesitter"
     "nvim-treesitter-context"

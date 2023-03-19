@@ -52,6 +52,10 @@
       url = "github:simrat39/rust-tools.nvim";
       flake = false;
     };
+    nvim-nu = {
+      url = "github:LhKipp/nvim-nu";
+      flake = false;
+    };
 
     # Copying/Registers
     registers = {
@@ -323,6 +327,7 @@
           java = true;
           kotlin = true;
           lua = true;
+          nu = true;
         };
         vim.visuals = {
           enable = true;
