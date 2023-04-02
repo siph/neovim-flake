@@ -366,6 +366,7 @@
           groupEmptyFolders = false;
           indentMarkers = false;
           treeWidth = 30;
+          openOnSetup= false;
           openOnSetupFile = false;
           hideFiles = [];
         };
