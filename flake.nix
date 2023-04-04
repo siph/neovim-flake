@@ -326,8 +326,8 @@
           zig.enable = false;
           java = true;
           kotlin = true;
-          lua = true;
           nu = true;
+          haskell = true;
         };
         vim.visuals = {
           enable = true;

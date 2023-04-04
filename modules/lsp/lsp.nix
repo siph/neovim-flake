@@ -63,8 +63,8 @@ in {
     zig.enable = mkEnableOption "Zig language LSP";
     java = mkEnableOption "Java language LSP";
     kotlin = mkEnableOption "Kotlin language LSP";
-    lua = mkEnableOption "Lua Language LSP";
     nu = mkEnableOption "Nushell Language LSP";
+    haskell = mkEnableOption "Haskell Language LSP";
   };
 
   config = mkIf cfg.enable (
@@ -313,6 +313,15 @@ in {
           }
         ''}
 
+        ${writeIf cfg.haskell ''
+          --Haskell config
+          lspconfig.hls.setup {
+            capabilities = capabilities,
+            on_attach=default_on_attach,
+            cmd = {"${pkgs.haskell-language-server}/bin/haskell-language-server-wrapper", "--lsp"},
+          }
+        ''}
+
         ${writeIf cfg.python ''
           -- Python config
           lspconfig.pyright.setup{
@@ -381,26 +390,6 @@ in {
             capabilities = capabilities;
             on_attach = default_on_attach;
             cmd = {"${pkgs.kotlin-language-server}/bin/kotlin-language-server"},
-          }
-        ''}
-
-        ${writeIf cfg.lua ''
-          -- Kotlin config
-          lspconfig.sumneko_lua.setup {
-            capabilities = capabilities;
-            on_attach = default_on_attach;
-            cmd = {"${pkgs.sumneko-lua-language-server}/bin/lua-language-server"},
-            Lua = {
-              runtime = {
-                version = 'LuaJIT',
-              },
-              diagnostice = {
-                globals = {},
-              },
-              telemetry = {
-                enable = false;
-              };
-            }
           }
         ''}
 

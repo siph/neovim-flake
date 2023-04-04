@@ -43,12 +43,12 @@ in {
         cpp
         css
         graphql
+        haskell
         html
         java
         javascript
         json
         kotlin
-        lua
         make
         markdown-inline
         nix
