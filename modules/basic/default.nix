@@ -164,6 +164,12 @@ in {
       default = true;
       description = "Briefly highlight yanked text";
     };
+
+    transparentBackground = mkOption {
+      type = types.bool;
+      default = true;
+      description = "Make background transparent";
+    };
   };
 
   config = {
@@ -291,6 +297,12 @@ in {
         augroup highlight_yank
             autocmd!
             au TextYankPost * silent! lua vim.highlight.on_yank{higroup="Search", timeout=200}
+        augroup END
+      ''}
+      ${optionalString cfg.transparentBackground ''
+        augroup user_colors
+          autocmd!
+          autocmd ColorScheme * highlight Normal ctermbg=NONE guibg=NONE
         augroup END
       ''}
     '';
