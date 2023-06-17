@@ -1,5 +1,7 @@
 # neovim-flake
 
+⚠️ **This is no longer being maintained. My configuration has moved [here](https://github.com/siph/nixvim-flake).** ⚠️
+
 Configurable nix-based neovim distribution with built-in LSP, syntax
 highlighting, buffer tabs, debugger, and more.
 
